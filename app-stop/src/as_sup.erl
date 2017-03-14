@@ -11,8 +11,8 @@ init(_Args) ->
     {ok, {#{startegy => one_for_one,
             intensity => 5,
             period => 1000},
-          [child(as_service, [])
-           %start_cowboy()
+          [child(as_service, []),
+           start_cowboy()
           ]}
          }.
 
@@ -28,3 +28,22 @@ child(Module, Args) ->
 %    Spec = child(Module, Args),
 %    Spec#{shutdown => infinity,
 %          type => supervisor}.
+
+start_cowboy() ->
+    Dispatch = cowboy_router:compile([
+        {'_', [
+            {"/[...]", cowboy_static, {priv_dir, as, "html"}}
+        ]}
+    ]),
+    Args = [
+        as_http_listener,
+        5,
+        [{port, 8080}],
+        #{env => #{dispatch => Dispatch}}
+    ],
+    #{id => as_cowboy,
+      start => {cowboy, start_clear, Args},
+      restart => permanent,
+      shutdown => brutal_kill,
+      type => worker,
+      modules => []}.
