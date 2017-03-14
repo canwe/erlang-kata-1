@@ -1,0 +1,15 @@
+{application, as,
+ [
+  {description, "Application stop test"},
+  {vsn, "0.1"},
+  {registered, []},
+  {applications, [
+      kernel,
+      stdlib,
+      crypto,
+      lager,
+      cowboy
+  ]},
+  {mod, {as_app, []}},
+  {env, []}
+ ]}.
