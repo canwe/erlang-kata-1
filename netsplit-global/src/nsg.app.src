@@ -1,0 +1,14 @@
+{application, nsg,
+ [
+  {description, "Net-split and global"},
+  {vsn, "0.1"},
+  {registered, []},
+  {applications, [
+      kernel,
+      stdlib,
+      lager,
+      riak_dt
+  ]},
+  {mod, {nsg_app, []}},
+  {env, []}
+ ]}.
