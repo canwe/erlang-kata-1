@@ -1,7 +1,8 @@
 -module(nsg_channel).
 -behaviour(gen_server).
 
--export([start_link/0]).
+-export([start_link/1,
+         get_channel/1]).
 
 -export([init/1,
          handle_info/2,
@@ -10,11 +11,21 @@
          terminate/2,
          code_change/3]).
 
-start_link() ->
-    gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+start_link(Name) ->
+    gen_server:start_link(?MODULE, [Name], []).
 
-init(_) ->
-    {ok, #{}}.
+get_channel(Name) ->
+    case global:whereis_name({channel, Name}) of
+        undefined ->
+            {ok, Pid} = nsg_channel_sup:start_channel(Name),
+            global:register_name({channel, Name}, Pid),
+            Pid;
+        Pid ->
+            Pid
+    end.
+
+init([Name]) ->
+    {ok, #{name => Name}}.
 
 handle_info(_Info, State) ->
     {noreply, State}.

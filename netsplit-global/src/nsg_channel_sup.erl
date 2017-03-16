@@ -1,31 +1,27 @@
--module(nsg_sup).
+-module(nsg_channel_sup).
 -behaviour(supervisor).
 
 -export([start_link/0,
+         start_channel/1,
          init/1]).
 
 start_link() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
+start_channel(Name) ->
+    supervisor:start_child(?MODULE, [Name]).
+
 init(_Args) ->
-    {ok, {#{startegy => one_for_one,
+    {ok, {#{strategy => simple_one_for_one,
             intensity => 5,
             period => 1000},
-          [
-           child(nsg_cluster_mgr, []),
-           child_sup(nsg_channel_sup, [])
-          ]}
+          [child(nsg_channel, [])]}
          }.
 
 child(Module, Args) ->
     #{id => Module,
       start => {Module, start_link, Args},
-      restart => permanent,
+      restart => temporary,
       shutdown => brutal_kill,
       type => worker,
       modules => []}.
-
-child_sup(Module, Args) ->
-    Spec = child(Module, Args),
-    Spec#{shutdown => infinity,
-          type => supervisor}.
