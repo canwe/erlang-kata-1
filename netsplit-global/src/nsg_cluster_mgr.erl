@@ -95,6 +95,6 @@ do_check_node(Node) ->
             lager:warning("Cannot reach ~p: ~p", [Node, Reason]),
             error;
         Result ->
-            lager:info("Check result: ~p ~p", [Node, Result]),
+            %lager:debug("Check result: ~p ~p", [Node, Result]),
             Result
     end.

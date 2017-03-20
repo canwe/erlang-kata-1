@@ -2,7 +2,8 @@
 -behaviour(gen_server).
 
 -export([start_link/1,
-         get_channel/1]).
+         get_channel/1,
+         ping/1]).
 
 -export([init/1,
          handle_info/2,
@@ -24,6 +25,22 @@ get_channel(Name) ->
             Pid
     end.
 
+ping(Name) ->
+    case global:whereis_name({channel, Name}) of
+        undefined ->
+            pang;
+        Pid ->
+            try gen_server:call(Pid, ping) of
+                pong ->
+                    pong;
+                _ ->
+                    pang
+            catch
+                _E:_R ->
+                    pang
+            end
+    end.
+
 init([Name]) ->
     {ok, #{name => Name}}.
 
@@ -33,6 +50,8 @@ handle_info(_Info, State) ->
 handle_cast(_Msg, State) ->
     {noreply, State}.
 
+handle_call(ping, _From, State) ->
+    {reply, pong, State};
 handle_call(_Req, _From, State) ->
     {reply, ok, State}.
 
